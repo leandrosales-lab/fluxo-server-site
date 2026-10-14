@@ -83,20 +83,56 @@
               <span class="window-url"><span class="live" aria-hidden="true"></span>127.0.0.1:5000/dashboard</span>
               <span class="window-ver">replay</span>
             </div>
-            <img src="img/dashboard.png" width="1280" height="400" loading="lazy" decoding="async"
+            <div class="ld" id="ld" hidden>
+              <div class="ld-grid">
+                <div class="ld-card">
+                  <span class="ld-h">Sinal atual</span>
+                  <div class="ld-sig" data-k="WAIT">
+                    <b class="ld-sig-l">— WAIT</b>
+                    <span class="ld-sig-p">aguardando setup</span>
+                    <span class="ld-sig-s"></span>
+                    <span class="ld-conf"><i></i></span>
+                  </div>
+                </div>
+                <div class="ld-card">
+                  <span class="ld-h">Pressão de fluxo</span>
+                  <div class="ld-bars">
+                    <div class="ld-bar buy"><i></i><span>Compra <b>0%</b></span></div>
+                    <div class="ld-bar sell"><i></i><span>Venda <b>0%</b></span></div>
+                  </div>
+                  <dl class="ld-kv">
+                    <dt>Delta acumulado</dt><dd data-f="dc">0</dd>
+                    <dt>Delta 30s</dt><dd data-f="dw">0</dd>
+                    <dt>Negócios</dt><dd data-f="n">0</dd>
+                  </dl>
+                </div>
+                <div class="ld-card">
+                  <span class="ld-h">Padrões detectados</span>
+                  <ul class="ld-pats"><li class="ld-empty">nenhum padrão ativo</li></ul>
+                </div>
+              </div>
+              <div class="ld-tape" aria-hidden="true"></div>
+              <div class="ld-foot">
+                <button type="button" class="ld-play" aria-label="Pausar animação">❚❚</button>
+                <span class="ld-clock mono">10:00:02</span>
+                <span class="ld-prog"><i></i></span>
+                <span class="ld-src mono">replay · exemplo_wdo.csv</span>
+              </div>
+            </div>
+            <img class="ld-static" src="img/dashboard.png" width="1280" height="400" loading="lazy" decoding="async"
                  alt="Dashboard do Fluxo Server mostrando um sinal SELL por exaustão com 83% de confiança, preço 5406,50 e stop 5409, pressão de fluxo de 85,8% compra contra 14,2% venda, delta acumulado de 301 e o padrão de exaustão no topo em 5408.">
           </div>
           <div class="float float-a" aria-hidden="true">
             <span class="float-label">Delta acumulado</span>
-            <b class="buy-t">+301</b>
+            <b class="buy-t" id="fa">+301</b>
           </div>
           <div class="float float-b" aria-hidden="true">
-            <span class="float-label">Exaustão · topo</span>
-            <b>5408,00</b>
-            <span class="float-sub">vol 10% da média · divergência de delta</span>
+            <span class="float-label" id="fb-l">Exaustão · topo</span>
+            <b id="fb">5408,00</b>
+            <span class="float-sub" id="fb-s">vol 10% da média · divergência de delta</span>
           </div>
         </div>
-        <p class="shot-caption">Captura real do dashboard, rodando o replay do CSV de exemplo que acompanha o projeto (mini dólar, dados de exemplo, não de um pregão real).</p>
+        <p class="shot-caption">Os números são do motor real processando o CSV de exemplo que acompanha o projeto (mini dólar, dados de exemplo, não de um pregão real), tocados mais rápido que o tempo real.</p>
       </div>
     </section>
 
@@ -337,6 +373,102 @@
         i++;
         setTimeout(proxima, i === 1 ? 700 : 420);
       })();
+    })();
+
+    // Mini-dashboard tocando o replay real (img/replay.json, gerado por tools/exportar_replay.py).
+    // Sem JS, sem o JSON ou com animação reduzida: fica a captura estática.
+    (function () {
+      var ld = document.getElementById('ld');
+      if (!ld || calmo || !window.fetch) return;
+      fetch('img/replay.json').then(function (r) { return r.json(); }).then(iniciar).catch(function () {});
+
+      function $(s) { return ld.querySelector(s); }
+      function preco(v) { return v.toFixed(2).replace('.', ','); }
+      function sinal(v) { return (v > 0 ? '+' : '') + v.toLocaleString('pt-BR'); }
+
+      function iniciar(d) {
+        var Q = d.quadros, i = 0, timer = null, pausado = false, visivel = true; var ultimoPadrao = '';
+        var h0 = d.inicio.split(':').map(Number), t0s = h0[0] * 3600 + h0[1] * 60 + h0[2];
+        var sig = $('.ld-sig'), tape = $('.ld-tape'), btn = $('.ld-play');
+        document.querySelector('.ld-static').hidden = true;
+        ld.hidden = false;
+
+        function quadro(k) {
+          var q = Q[k];
+          // Sinal
+          sig.dataset.k = q.sg;
+          $('.ld-sig-l').textContent = q.sg === 'BUY' ? '▲ BUY' : q.sg === 'SELL' ? '▼ SELL' : '— WAIT';
+          $('.ld-sig-p').textContent = q.px ? preco(q.px) + '  ·  ' + q.sp : 'aguardando setup';
+          $('.ld-sig-s').textContent = q.st ? 'stop ' + preco(q.st) + '  ·  conf ' + Math.round(q.sc * 100) + '%' : '';
+          $('.ld-conf i').style.width = (q.sc ? q.sc * 100 : 0) + '%';
+          // Pressão e delta
+          $('.ld-bar.buy i').style.width = q.fb + '%';
+          $('.ld-bar.sell i').style.width = (100 - q.fb) + '%';
+          $('.ld-bar.buy b').textContent = q.fb.toFixed(1).replace('.', ',') + '%';
+          $('.ld-bar.sell b').textContent = (100 - q.fb).toFixed(1).replace('.', ',') + '%';
+          [['dc', q.dc], ['dw', q.dw], ['n', k + 1]].forEach(function (f) {
+            var el = ld.querySelector('[data-f="' + f[0] + '"]');
+            el.textContent = f[0] === 'n' ? f[1] : sinal(f[1]);
+            el.className = f[0] === 'n' ? '' : f[1] >= 0 ? 'pos' : 'neg';
+          });
+          // Padrões
+          var pats = (q.pt || []).map(function (p) {
+            var txt = p.k === 'Exaustão' ? 'no ' + p.lado + ' @ ' + preco(p.px)
+                    : p.k === 'Absorção' ? '@ ' + preco(p.px) + ' · ' + p.n + ' toques'
+                    : p.k === 'Urgência' ? p.b + ' · ' + p.lado + ' em ' + p.n + ' níveis'
+                    : p.b + ' @ ' + preco(p.px);
+            return '<li><b>' + p.k + '</b> ' + txt + '</li>';
+          });
+          var html = pats.length ? pats.join('') : '<li class="ld-empty">nenhum padrão ativo</li>';
+          if (html !== ultimoPadrao) { $('.ld-pats').innerHTML = html; ultimoPadrao = html; }
+          // Fita: último negócio entra pela direita
+          var chip = document.createElement('span');
+          chip.className = 'trade ' + (q.s === 'C' ? 'is-buy' : 'is-sell');
+          chip.innerHTML = '<b>' + (q.s === 'C' ? '▲' : '▼') + '</b> ' + preco(q.p) + ' <em>' + q.q + '</em> ' + q.b;
+          tape.appendChild(chip);
+          while (tape.children.length > 9) tape.removeChild(tape.firstChild);
+          // Relógio e progresso
+          var s = t0s + Math.round(q.t / 1000);
+          $('.ld-clock').textContent = [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60]
+            .map(function (n) { return (n < 10 ? '0' : '') + n; }).join(':');
+          $('.ld-prog i').style.width = ((k + 1) / Q.length * 100) + '%';
+          // Cartões flutuantes
+          var fa = document.getElementById('fa');
+          fa.textContent = sinal(q.dc);
+          fa.className = q.dc >= 0 ? 'buy-t' : 'sell-t';
+          if (q.sg !== 'WAIT') {
+            document.getElementById('fb-l').textContent = 'Último sinal · ' + q.sg;
+            document.getElementById('fb').textContent = preco(q.px);
+            document.getElementById('fb-s').textContent = q.sp + ' · stop ' + preco(q.st) + ' · conf ' + Math.round(q.sc * 100) + '%';
+          }
+        }
+
+        function passo() {
+          timer = null;
+          if (pausado || !visivel) return;
+          quadro(i);
+          var fim = i === Q.length - 1;
+          var espera = fim ? 2500 : Math.min(900, Math.max(70, (Q[i + 1].t - Q[i].t) / 14));
+          i = fim ? 0 : i + 1;
+          if (fim) setTimeout(function () { tape.innerHTML = ''; }, 2400);
+          timer = setTimeout(passo, espera);
+        }
+        function retomar() { if (!timer && !pausado && visivel) passo(); }
+
+        btn.addEventListener('click', function () {
+          pausado = !pausado;
+          btn.textContent = pausado ? '▶' : '❚❚';
+          btn.setAttribute('aria-label', pausado ? 'Continuar animação' : 'Pausar animação');
+          retomar();
+        });
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function (e) { visivel = e[0].isIntersecting; retomar(); }).observe(ld);
+        }
+        document.addEventListener('visibilitychange', function () { visivel = !document.hidden; retomar(); });
+        quadro(0);
+        i = 1;
+        retomar();
+      }
     })();
 
     // Abas acessíveis (setas, Home/End) — sem dependências
