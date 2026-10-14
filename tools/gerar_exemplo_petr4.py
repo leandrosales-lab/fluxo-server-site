@@ -16,13 +16,13 @@ import csv
 import os
 import random
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 random.seed(20261014)
 
 CORRETORAS = ["XP INC", "BTG PACTUAL", "ITAU", "BRADESCO", "SANTANDER", "UBS", "SAFRA",
               "GENIAL", "CLEAR", "MORGAN STANLEY", "JP MORGAN", "TORO", "INTER", "RICO"]
-INICIO = datetime(2026, 10, 13, 10, 15, 0).timestamp()
+INICIO = datetime(2026, 10, 13, 10, 15, 0, tzinfo=timezone(timedelta(hours=-3))).timestamp()  # 10:15 na B3
 
 linhas = []
 t = INICIO

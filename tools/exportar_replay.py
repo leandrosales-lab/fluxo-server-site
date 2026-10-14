@@ -75,7 +75,7 @@ def main():
     dados = {
         "fonte": os.path.basename(csv_path),
         "ativo": ativo,
-        "inicio": datetime.datetime.fromtimestamp(t0).strftime("%H:%M:%S"),
+        "inicio": datetime.datetime.fromtimestamp(t0, datetime.timezone(datetime.timedelta(hours=-3))).strftime("%H:%M:%S"),  # hora da B3
         "aviso": "Dados sintéticos de exemplo, não de um pregão real.",
         "quadros": quadros,
     }

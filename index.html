@@ -75,7 +75,7 @@
     <section class="product" aria-labelledby="produto-titulo">
       <div class="wrap">
         <p class="eyebrow">O dashboard</p>
-        <h2 class="section-title" id="produto-titulo">O sinal, o fluxo e o motivo na mesma tela.</h2>
+        <h2 class="section-title" id="produto-titulo">Gráfico, Times &amp; Trades e sinal na mesma tela.</h2>
         <div class="shot">
           <div class="window">
             <div class="window-bar">
@@ -84,6 +84,22 @@
               <span class="window-ver">replay</span>
             </div>
             <div class="ld" id="ld" hidden>
+              <div class="ld-top">
+                <div class="ld-card ld-chart-card">
+                  <span class="ld-h">Gráfico ao vivo · 15 s</span>
+                  <div class="ld-chart" id="ld-chart" aria-hidden="true"></div>
+                </div>
+                <div class="ld-side">
+                  <div class="ld-card ld-book">
+                    <span class="ld-h">Book de ofertas</span>
+                    <p>Este pregão de exemplo não tem book. O livro completo, com corretora por nível, virá com a ProfitDLL.</p>
+                  </div>
+                  <div class="ld-card ld-tt">
+                    <span class="ld-h">Times &amp; Trades</span>
+                    <table><thead><tr><th>Hora</th><th>Preço</th><th>Qtd</th><th>Ag.</th><th>Agressora → passiva</th></tr></thead><tbody></tbody></table>
+                  </div>
+                </div>
+              </div>
               <div class="ld-grid">
                 <div class="ld-card">
                   <span class="ld-h">Sinal atual</span>
@@ -111,7 +127,6 @@
                   <ul class="ld-pats"><li class="ld-empty">nenhum padrão ativo</li></ul>
                 </div>
               </div>
-              <div class="ld-tape" aria-hidden="true"></div>
               <div class="ld-foot">
                 <button type="button" class="ld-play" aria-label="Pausar animação">❚❚</button>
                 <span class="ld-clock mono">10:15:00</span>
@@ -119,8 +134,8 @@
                 <span class="ld-src mono">replay · PETR4 · dados sintéticos</span>
               </div>
             </div>
-            <img class="ld-static" src="img/dashboard.png" width="1280" height="400" loading="lazy" decoding="async"
-                 alt="Dashboard do Fluxo Server com a PETR4 em dados sintéticos: sinal SELL por exaustão com 65% de confiança em 37,55 e stop 37,60, pressão de fluxo 72,3% compra contra 27,7% venda, delta acumulado de 3.400, absorções em 37,45 e 37,40 e exaustão no topo em 37,58.">
+            <img class="ld-static" src="img/dashboard.png" width="1440" height="640" loading="lazy" decoding="async"
+                 alt="Dashboard do Fluxo Server com a PETR4 em dados sintéticos: gráfico de candles de 15 segundos com setas de BUY por iceberg e absorção e de SELL por exaustão e urgência, linhas de absorção em 37,39 e de stop em 37,37, aviso de que a fonte não entrega book de ofertas e o Times &amp; Trades com hora, preço, quantidade, agressor e corretoras.">
           </div>
           <div class="float float-a" aria-hidden="true">
             <span class="float-label">Delta acumulado</span>
@@ -142,7 +157,7 @@
         <div class="stat"><b>6</b><span>padrões de fluxo detectados</span></div>
         <div class="stat"><b>4</b><span>fontes de dados</span></div>
         <div class="stat"><b>0</b><span>dependências externas no núcleo</span></div>
-        <div class="stat"><b>20</b><span>grupos de teste automatizados</span></div>
+        <div class="stat"><b>144</b><span>verificações automatizadas em 25 grupos de teste</span></div>
       </div>
     </section>
 
@@ -268,14 +283,14 @@
         <h2 class="section-title">Pequeno, testável e sem dependências no núcleo.</h2>
         <div class="grid grid-3" style="margin-top:32px">
           <div class="card"><span class="tag">núcleo</span><h3>Python puro</h3><p>O motor, a API e o replay usam só a biblioteca padrão. Dependências externas só nos modos de captura opcionais (OCR, DDE).</p></div>
-          <div class="card"><span class="tag">api</span><h3>API HTTP embutida</h3><p><code>GET /signal</code>, <code>GET /state</code> com delta, pernas, icebergs e absorções, <code>POST /tick</code> e <code>POST /rtd</code> para entrada de dados, e um dashboard que atualiza sozinho.</p></div>
+          <div class="card"><span class="tag">api</span><h3>API HTTP e dashboard</h3><p><code>/state</code>, <code>/candles</code>, <code>/trades</code>, <code>/signals</code> e <code>/book</code> para leitura; <code>POST /tick</code> e <code>POST /rtd</code> para entrada. O dashboard tem gráfico ao vivo, Times &amp; Trades e book, e atualiza sem recarregar a página.</p></div>
           <div class="card"><span class="tag">profit</span><h3>Integração com o Profit</h3><p>Um robô NTSL lê o sinal pela planilha; a ponte RTD é uma macro VBA que envia cada atualização ao servidor.</p></div>
           <div class="card"><span class="tag">concorrência</span><h3>Sem bloquear a fonte</h3><p>Os callbacks da DLL só enfileiram; uma thread separada entrega os negócios ao motor na ordem de chegada.</p></div>
-          <div class="card"><span class="tag">testes</span><h3>20 grupos de teste</h3><p>Cada detector, a ponte da DLL com negócios simulados, a inferência do RTD, a API HTTP, a leitura de CSV do Profit, a gravação e o replay. Rodam em qualquer sistema, sem o Profit.</p></div>
+          <div class="card"><span class="tag">testes</span><h3>144 verificações, 25 grupos</h3><p>Cada detector, a ponte da DLL com negócios simulados, a inferência do RTD, a API HTTP e do gráfico, a leitura de CSV do Profit no fuso da B3, a gravação e o replay. Rodam em qualquer sistema, sem o Profit.</p></div>
           <div class="card"><span class="tag">honestidade</span><h3>Heurística fraca, marcada</h3><p>Quando a fonte não informa a corretora passiva, o iceberg cai para a regra do lote repetido, e o estado diz isso explicitamente.</p></div>
         </div>
         <div class="chips" aria-label="Stack">
-          <span class="chip">Python 3.10+</span><span class="chip">biblioteca padrão</span><span class="chip">ctypes (ProfitDLL)</span><span class="chip">VBA (RTD)</span><span class="chip">NTSL</span><span class="chip">HTML/JS (dashboard)</span>
+          <span class="chip">Python 3.10+</span><span class="chip">biblioteca padrão</span><span class="chip">ctypes (ProfitDLL)</span><span class="chip">VBA (RTD)</span><span class="chip">NTSL</span><span class="chip">HTML/JS (dashboard)</span><span class="chip">Lightweight Charts</span>
         </div>
       </div>
     </section>
@@ -288,7 +303,7 @@
         <div class="grid grid-3" style="margin-top:32px">
           <div class="card status-col">
             <h3><span class="ind" style="background:var(--buy)"></span>Pronto e testado com dados de exemplo</h3>
-            <ul><li>Motor com iceberg pela passiva, absorção, exaustão, delta, urgência e best offer</li><li>Replay determinístico, mini backtest e grid</li><li>Ponte RTD com inferência de negócios</li><li>API HTTP e dashboard</li></ul>
+            <ul><li>Motor com iceberg pela passiva, absorção, exaustão, delta, urgência e best offer</li><li>Replay determinístico, mini backtest e grid</li><li>Ponte RTD com inferência de negócios</li><li>Dashboard com gráfico ao vivo, Times &amp; Trades e topo do book</li><li>Replay de um pregão inteiro em segundos (40 mil negócios em ~8 s)</li></ul>
           </div>
           <div class="card status-col">
             <h3><span class="ind" style="background:var(--warn)"></span>Implementado, falta testar com o Profit real</h3>
@@ -296,7 +311,7 @@
           </div>
           <div class="card status-col">
             <h3><span class="ind" style="background:var(--accent)"></span>Próximos passos</h3>
-            <ol><li><b>PETR4 com dados reais:</b> gravar e reprocessar pregões, primeira calibração.</li><li><b>Mini índice (WIN):</b> calibração própria, outro tamanho de tick e outra liquidez.</li></ol>
+            <ol><li><b>PETR4 com dados reais:</b> gravar e reprocessar pregões, primeira calibração.</li><li><b>Book completo:</b> profundidade com corretora por nível, via ProfitDLL.</li><li><b>Mini índice (WIN):</b> calibração própria, outro tamanho de tick e outra liquidez.</li></ol>
           </div>
         </div>
         <p class="caveat">Nenhum resultado foi medido com dados reais ainda. Quando houver, ele aparece aqui, com o tamanho da amostra.</p>
@@ -380,16 +395,82 @@
     (function () {
       var ld = document.getElementById('ld');
       if (!ld || calmo || !window.fetch) return;
-      fetch('img/replay.json').then(function (r) { return r.json(); }).then(iniciar).catch(function () {});
+      // A biblioteca do gráfico só é baixada quando a animação vai rodar; se falhar, o resto anima sem gráfico.
+      function carregarGrafico() {
+        return new Promise(function (ok) {
+          var sc = document.createElement('script');
+          sc.src = 'vendor/lightweight-charts.standalone.production.js';
+          sc.onload = function () { ok(window.LightweightCharts || null); };
+          sc.onerror = function () { ok(null); };
+          document.head.appendChild(sc);
+        });
+      }
+      Promise.all([fetch('img/replay.json').then(function (r) { return r.json(); }), carregarGrafico()])
+        .then(function (r) { iniciar(r[0], r[1]); }).catch(function () {});
 
       function $(s) { return ld.querySelector(s); }
       function preco(v) { return v.toFixed(2).replace('.', ','); }
       function sinal(v) { return (v > 0 ? '+' : '') + v.toLocaleString('pt-BR'); }
 
-      function iniciar(d) {
+      // Candles de 15 s montados a partir dos negócios do replay, com setas nos sinais e linha do stop.
+      // O tempo vai como UTC = relógio da B3 (o gráfico mostra o horário em UTC).
+      function criarGrafico(LWC, base) {
+        var el = document.getElementById('ld-chart');
+        var chart = LWC.createChart(el, {
+          autoSize: true, handleScroll: false, handleScale: false,
+          localization: { locale: 'pt-BR', priceFormatter: function (v) { return v.toFixed(2).replace('.', ','); } },
+          layout: { background: { type: 'solid', color: '#1A1A1A' }, textColor: '#8E9AA8', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 },
+          grid: { vertLines: { color: '#232323' }, horzLines: { color: '#232323' } },
+          rightPriceScale: { borderColor: '#2B2B2B' },
+          timeScale: { borderColor: '#2B2B2B', timeVisible: true, secondsVisible: true },
+          crosshair: { mode: 0 }
+        });
+        var cs = chart.addSeries(LWC.CandlestickSeries, { upColor: '#00C853', downColor: '#F44336', borderVisible: false,
+          wickUpColor: '#00C853', wickDownColor: '#F44336', priceFormat: { type: 'price', precision: 2, minMove: 0.01 } });
+        cs.priceScale().applyOptions({ scaleMargins: { top: 0.12, bottom: 0.26 } });
+        var vs = chart.addSeries(LWC.HistogramSeries, { priceFormat: { type: 'volume' }, priceScaleId: '', lastValueVisible: false, priceLineVisible: false });
+        vs.priceScale().applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+        var mk = LWC.createSeriesMarkers(cs, []);
+        var c = null, marcas = [], chave = null, stop = null;
+        return {
+          quadro: function (q, k) {
+            if (k === 0) {
+              cs.setData([]); vs.setData([]); marcas = []; mk.setMarkers([]); c = null; chave = null;
+              if (stop) { cs.removePriceLine(stop); stop = null; }
+            }
+            var t = Math.floor((base + q.t / 1000) / 15) * 15;
+            if (!c || c.time !== t) {
+              c = { time: t, open: q.p, high: q.p, low: q.p, close: q.p, buy: 0, sell: 0 };
+              chart.timeScale().fitContent();
+            }
+            c.high = Math.max(c.high, q.p); c.low = Math.min(c.low, q.p); c.close = q.p;
+            if (q.s === 'C') c.buy += q.q; else c.sell += q.q;
+            cs.update({ time: c.time, open: c.open, high: c.high, low: c.low, close: c.close });
+            vs.update({ time: c.time, value: c.buy + c.sell, color: c.buy >= c.sell ? 'rgba(0,200,83,.45)' : 'rgba(244,67,54,.45)' });
+            if (q.sg === 'BUY' || q.sg === 'SELL') {
+              var nova = q.sg + q.sp + q.st;
+              if (nova !== chave) {
+                var buy = q.sg === 'BUY';
+                marcas.push({ time: t, position: buy ? 'belowBar' : 'aboveBar', color: buy ? '#00C853' : '#F44336',
+                              shape: buy ? 'arrowUp' : 'arrowDown', text: q.sp });
+                mk.setMarkers(marcas.slice());
+                chave = nova;
+              }
+              if (!stop) stop = cs.createPriceLine({ price: q.st, color: '#FFC107', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'stop' });
+              else stop.applyOptions({ price: q.st });
+            } else {
+              chave = null;
+              if (stop) { cs.removePriceLine(stop); stop = null; }
+            }
+          }
+        };
+      }
+
+      function iniciar(d, LWC) {
         var Q = d.quadros, i = 0, timer = null, pausado = false, visivel = true; var ultimoPadrao = '';
         var h0 = d.inicio.split(':').map(Number), t0s = h0[0] * 3600 + h0[1] * 60 + h0[2];
-        var sig = $('.ld-sig'), tape = $('.ld-tape'), btn = $('.ld-play');
+        var sig = $('.ld-sig'), tt = $('.ld-tt tbody'), btn = $('.ld-play');
+        var g = LWC ? criarGrafico(LWC, Date.UTC(2026, 9, 13, h0[0], h0[1], h0[2]) / 1000) : null;
         document.querySelector('.ld-static').hidden = true;
         ld.hidden = false;
 
@@ -421,16 +502,21 @@
           });
           var html = pats.length ? pats.join('') : '<li class="ld-empty">nenhum padrão ativo</li>';
           if (html !== ultimoPadrao) { $('.ld-pats').innerHTML = html; ultimoPadrao = html; }
-          // Fita: último negócio entra pela direita
-          var chip = document.createElement('span');
-          chip.className = 'trade ' + (q.s === 'C' ? 'is-buy' : 'is-sell');
-          chip.innerHTML = '<b>' + (q.s === 'C' ? '▲' : '▼') + '</b> ' + preco(q.p) + ' <em>' + q.q + '</em> ' + q.b;
-          tape.appendChild(chip);
-          while (tape.children.length > 9) tape.removeChild(tape.firstChild);
-          // Relógio e progresso
+          // Gráfico
+          if (g) g.quadro(q, k);
+          // Times & Trades: o negócio mais novo entra em cima
+          if (k === 0) tt.innerHTML = '';
           var s = t0s + Math.round(q.t / 1000);
-          $('.ld-clock').textContent = [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60]
+          var hora = [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60]
             .map(function (n) { return (n < 10 ? '0' : '') + n; }).join(':');
+          var tr = document.createElement('tr');
+          tr.className = q.s === 'C' ? 'is-buy' : 'is-sell';
+          tr.innerHTML = '<td>' + hora + '</td><td>' + preco(q.p) + '</td><td>' + q.q + '</td><td><b>' + q.s +
+            '</b></td><td>' + q.b + ' → ' + (q.pb || '—') + '</td>';
+          tt.insertBefore(tr, tt.firstChild);
+          while (tt.children.length > 9) tt.removeChild(tt.lastChild);
+          // Relógio e progresso
+          $('.ld-clock').textContent = hora;
           $('.ld-prog i').style.width = ((k + 1) / Q.length * 100) + '%';
           // Cartões flutuantes
           var fa = document.getElementById('fa');
@@ -450,7 +536,6 @@
           var fim = i === Q.length - 1;
           var espera = fim ? 4000 : Math.min(1600, Math.max(320, (Q[i + 1].t - Q[i].t) / 3));
           i = fim ? 0 : i + 1;
-          if (fim) setTimeout(function () { tape.innerHTML = ''; }, 3900);
           timer = setTimeout(passo, espera);
         }
         function retomar() { if (!timer && !pausado && visivel) passo(); }
