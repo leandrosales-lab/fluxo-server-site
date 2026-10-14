@@ -114,25 +114,25 @@
               <div class="ld-tape" aria-hidden="true"></div>
               <div class="ld-foot">
                 <button type="button" class="ld-play" aria-label="Pausar animação">❚❚</button>
-                <span class="ld-clock mono">10:00:02</span>
+                <span class="ld-clock mono">10:15:00</span>
                 <span class="ld-prog"><i></i></span>
-                <span class="ld-src mono">replay · exemplo_wdo.csv</span>
+                <span class="ld-src mono">replay · PETR4 · dados sintéticos</span>
               </div>
             </div>
             <img class="ld-static" src="img/dashboard.png" width="1280" height="400" loading="lazy" decoding="async"
-                 alt="Dashboard do Fluxo Server mostrando um sinal SELL por exaustão com 83% de confiança, preço 5406,50 e stop 5409, pressão de fluxo de 85,8% compra contra 14,2% venda, delta acumulado de 301 e o padrão de exaustão no topo em 5408.">
+                 alt="Dashboard do Fluxo Server com a PETR4 em dados sintéticos: sinal SELL por exaustão com 65% de confiança em 37,55 e stop 37,60, pressão de fluxo 72,3% compra contra 27,7% venda, delta acumulado de 3.400, absorções em 37,45 e 37,40 e exaustão no topo em 37,58.">
           </div>
           <div class="float float-a" aria-hidden="true">
             <span class="float-label">Delta acumulado</span>
-            <b class="buy-t" id="fa">+301</b>
+            <b class="buy-t" id="fa">+3.400</b>
           </div>
           <div class="float float-b" aria-hidden="true">
-            <span class="float-label" id="fb-l">Exaustão · topo</span>
-            <b id="fb">5408,00</b>
-            <span class="float-sub" id="fb-s">vol 10% da média · divergência de delta</span>
+            <span class="float-label" id="fb-l">Último sinal · SELL</span>
+            <b id="fb">37,55</b>
+            <span class="float-sub" id="fb-s">Exaustão · stop 37,60 · conf 65%</span>
           </div>
         </div>
-        <p class="shot-caption">Os números são do motor real processando o CSV de exemplo que acompanha o projeto (mini dólar, dados de exemplo, não de um pregão real), tocados mais rápido que o tempo real.</p>
+        <p class="shot-caption">Os números são do motor real processando um pregão sintético da PETR4 (dados inventados para a demonstração, não de um pregão real).</p>
       </div>
     </section>
 
@@ -448,9 +448,9 @@
           if (pausado || !visivel) return;
           quadro(i);
           var fim = i === Q.length - 1;
-          var espera = fim ? 2500 : Math.min(900, Math.max(70, (Q[i + 1].t - Q[i].t) / 14));
+          var espera = fim ? 4000 : Math.min(1600, Math.max(320, (Q[i + 1].t - Q[i].t) / 3));
           i = fim ? 0 : i + 1;
-          if (fim) setTimeout(function () { tape.innerHTML = ''; }, 2400);
+          if (fim) setTimeout(function () { tape.innerHTML = ''; }, 3900);
           timer = setTimeout(passo, espera);
         }
         function retomar() { if (!timer && !pausado && visivel) passo(); }
