@@ -1,0 +1,22 @@
+feature,area,priority,original,clone,notes
+Header fixo com links âncora e CTA,nav,must,yes,yes,S01; sem seletor de idioma
+Hero com H1 + subtítulo + 2 CTAs,hero,must,yes,yes,S02
+Terminal simulado no hero,hero,must,yes,yes,S02; logs fictícios rotulados como exemplo
+Selo de versão/status no hero,hero,should,yes,yes,"S02; ""v0.x · projeto de estudo"""
+Faixa de números,hero,should,yes,yes,S03 adaptado; só números reais (20 grupos de teste)
+Como funciona em passos,pipeline,must,yes,yes,S06
+Grade de cards (padrões),features,must,yes,yes,S10; 6 padrões
+Abas (fontes de dados),features,must,yes,yes,S04 adaptado; sem JS pesado
+Antes/depois em 2 colunas,story,should,yes,no,S05
+Bloco de relatório/tabela,features,should,yes,partial,S07-S09 adaptado; replay
+Seção de engenharia,features,should,yes,yes,stack + testes
+Status/roadmap honesto,trust,must,yes,yes,S14 adaptado
+FAQ em acordeão,faq,must,yes,yes,"S15; inclui ""dá lucro?"""
+CTA final,cta,must,yes,yes,S16; contato/GitHub
+Rodapé com aviso de risco,footer,must,yes,yes,S17 + aviso
+Layout mobile (uma coluna),responsive,must,yes,yes,390px
+Seletor de idioma,nav,could,yes,skip,só PT-BR
+Mockup de celular / aprovação remota,features,could,yes,skip,não se aplica
+Seções de personalidade (lounge),story,could,yes,skip,não se aplica
+Casos de uso por persona,story,could,yes,skip,portfólio
+Botão/abas de instalação,cta,could,yes,skip,repo privado

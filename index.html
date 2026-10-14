@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fluxo Server · leitura de fluxo da B3</title>
+  <meta name="description" content="Projeto de estudo: um motor em Python que lê cada negócio do Times & Trades da B3 e detecta iceberg, absorção e exaustão, explicando cada sinal.">
+  <meta name="theme-color" content="#0A0D10">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230A0D10'/%3E%3Cpath d='M6 22l6-7 5 4 9-11' stroke='%2300BCD4' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="#topo" aria-label="Fluxo Server, início"><span class="dot" aria-hidden="true"></span>fluxo_server</a>
+      <nav class="nav" aria-label="Seções">
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#padroes">Padrões</a>
+        <a href="#fontes">Fontes de dados</a>
+        <a href="#replay">Replay</a>
+        <a href="#engenharia">Engenharia</a>
+        <a href="#status">Status</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="btn btn-ghost btn-sm" href="#contato">Falar comigo</a>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <!-- Hero -->
+    <section class="hero" id="topo">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="badge"><span class="pulse" aria-hidden="true"></span>Projeto de estudo · em desenvolvimento</span>
+          <h1>Leitura de fluxo da B3, <span class="hl">negócio a negócio.</span></h1>
+          <p class="sub">Um motor em Python que recebe cada negócio do Times &amp; Trades, identifica iceberg, absorção e exaustão, e explica cada sinal com os números que o geraram.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#como-funciona">Ver como funciona</a>
+            <a class="btn btn-ghost" href="#contato">Falar comigo</a>
+          </div>
+        </div>
+        <div>
+          <div class="terminal" role="figure" aria-label="Exemplo ilustrativo do log do motor, com dados fictícios">
+            <div class="term-bar">
+              <div class="term-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span class="term-label">exemplo ilustrativo — dados fictícios</span>
+            </div>
+<pre class="term-body"><span class="cmd">$ python main.py --asset PETR4 --modo replay --arquivo pregao.csv</span>
+<span class="info">[INFO]</span> Replay: 41.208 ticks de pregao.csv (0 linhas ignoradas)
+<span class="info">[INFO]</span> Iceberg CONFIRMADO (passiva): ITAU compra @ 37.42 | 9 execuções
+       vol 48.300 (4.2x lote médio) | fatia 71%
+<span class="buy">[REPLAY] BUY  Iceberg  @ 37.43  stop 37.40  conf 0.78</span>
+<span class="info">[INFO]</span> Exaustão COMPRADORA (topo) @ 37.61 | vol 41% da média
+       de 3 pernas | divergência de delta
+<span class="sell">[REPLAY] SELL Exaustão @ 37.58  stop 37.63  conf 0.71</span>
+[STATUS] PETR4 | Ticks: 5000 | Fluxo: 38.2%C 61.8%V | Delta 30s: -12.400
+<span class="info">[INFO]</span> Iceberg ROMPIDO: ITAU @ 37.42 (11 renovações, 61.900 vol total)</pre>
+          </div>
+          <p class="term-note">Cada sinal sai com motivo, preço, stop e confiança. Nada de caixa-preta.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Números -->
+    <section class="stats" aria-label="Resumo do projeto">
+      <div class="wrap stats-grid">
+        <div class="stat"><b>6</b><span>padrões de fluxo detectados</span></div>
+        <div class="stat"><b>4</b><span>fontes de dados</span></div>
+        <div class="stat"><b>0</b><span>dependências externas no núcleo</span></div>
+        <div class="stat"><b>20</b><span>grupos de teste automatizados</span></div>
+      </div>
+    </section>
+
+    <!-- Como funciona -->
+    <section id="como-funciona">
+      <div class="wrap">
+        <p class="eyebrow">Pipeline</p>
+        <h2 class="section-title">Do negócio ao sinal, em quatro passos.</h2>
+        <div class="grid grid-4" style="margin-top:32px">
+          <div class="card step"><span class="num">01</span><h3>Captura</h3><p>Cada negócio chega com preço, quantidade, lado agressor e as duas corretoras: quem agrediu e quem estava apregoado.</p></div>
+          <div class="card step"><span class="num">02</span><h3>Motor de fluxo</h3><p>O engine atualiza janelas de volume, delta, níveis de preço e pernas de movimento, sempre no horário do negócio, nunca no relógio do computador.</p></div>
+          <div class="card step"><span class="num">03</span><h3>Detectores</h3><p>Iceberg, absorção, exaustão, urgência e best offer rodam em paralelo e propõem candidatos de compra ou venda, cada um com sua confiança.</p></div>
+          <div class="card step"><span class="num">04</span><h3>Sinal</h3><p>O candidato mais forte acima da confiança mínima vira BUY ou SELL, com stop atrás do nível que o justificou. Abaixo disso, o motor fica em WAIT e diz por quê.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Padrões -->
+    <section id="padroes">
+      <div class="wrap">
+        <p class="eyebrow">Detectores</p>
+        <h2 class="section-title">O que o motor procura no Times &amp; Trades.</h2>
+        <p class="lead">Cada padrão tem duas leituras: o que ele significa para quem opera, e a regra exata que o motor usa para encontrá-lo.</p>
+        <div class="grid grid-3">
+          <article class="card pattern buy">
+            <h3>Iceberg pela corretora passiva</h3>
+            <dl><dt>Para o trader</dt><dd>Um player segurando um preço com ordem escondida, que se renova a cada vez que é agredida.</dd>
+            <dt>Como detecta</dt><dd>A mesma corretora passiva executada várias vezes no mesmo preço, com volume bem acima do lote médio, por tempo mínimo, sem o preço atravessar o nível.</dd></dl>
+          </article>
+          <article class="card pattern">
+            <h3>Absorção</h3>
+            <dl><dt>Para o trader</dt><dd>Muita agressão num nível e o preço não passa.</dd>
+            <dt>Como detecta</dt><dd>Nível tocado várias vezes na janela, com volume agredido de pelo menos 1,5x a média dos outros níveis; informa qual lado foi absorvido.</dd></dl>
+          </article>
+          <article class="card pattern sell">
+            <h3>Exaustão</h3>
+            <dl><dt>Para o trader</dt><dd>O movimento faz nova máxima (ou mínima), mas cada vez com menos agressão.</dd>
+            <dt>Como detecta</dt><dd>Divide o preço em pernas (zigzag) e compara o volume a favor da última perna com a média das anteriores; divergência de delta, queda de velocidade e de lote médio somam confiança.</dd></dl>
+          </article>
+          <article class="card pattern">
+            <h3>Delta acumulado</h3>
+            <dl><dt>Para o trader</dt><dd>Quem está agredindo mais, comprador ou vendedor, no dia e nos últimos segundos.</dd>
+            <dt>Como detecta</dt><dd>Soma o volume agredido na compra menos o da venda, desde a abertura e numa janela curta configurável.</dd></dl>
+          </article>
+          <article class="card pattern warn">
+            <h3>Urgência</h3>
+            <dl><dt>Para o trader</dt><dd>Um player subindo (ou descendo) a escada de preços para conseguir executar.</dd>
+            <dt>Como detecta</dt><dd>A mesma corretora agredindo em vários preços diferentes em poucos segundos.</dd></dl>
+          </article>
+          <article class="card pattern">
+            <h3>Best offer passivo</h3>
+            <dl><dt>Para o trader</dt><dd>Um player que fica sempre no primeiro nível do book.</dd>
+            <dt>Como detecta</dt><dd>Conta quantas vezes cada corretora aparece no melhor bid ou ask dentro de uma janela de tempo.</dd></dl>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fontes -->
+    <section id="fontes">
+      <div class="wrap">
+        <p class="eyebrow">Entrada de dados</p>
+        <h2 class="section-title">Várias entradas, um formato de negócio.</h2>
+        <div class="tabs" style="margin-top:32px">
+          <div role="tablist" aria-label="Fontes de dados">
+            <button role="tab" id="tab-dll" aria-controls="p-dll" aria-selected="true">ProfitDLL</button>
+            <button role="tab" id="tab-rtd" aria-controls="p-rtd" aria-selected="false" tabindex="-1">RTD via Excel</button>
+            <button role="tab" id="tab-csv" aria-controls="p-csv" aria-selected="false" tabindex="-1">Replay de CSV</button>
+            <button role="tab" id="tab-leg" aria-controls="p-leg" aria-selected="false" tabindex="-1">DDE e OCR</button>
+          </div>
+          <div class="panel" role="tabpanel" id="p-dll" aria-labelledby="tab-dll">
+            <h3>ProfitDLL (Nelogica)</h3>
+            <p>Cada negócio por callback, com lado agressor, as duas corretoras e o horário exato. Topo do book. Histórico de dias passados.</p>
+            <span class="status-pill st-wait">Implementada · ainda não testada com a DLL real</span>
+          </div>
+          <div class="panel" role="tabpanel" id="p-rtd" aria-labelledby="tab-rtd" hidden>
+            <h3>RTD via Excel</h3>
+            <p>Um retrato do ativo a cada atualização. O servidor deduz quantidade, lado agressor e corretoras.</p>
+            <span class="status-pill st-wait">Implementada · negócios entre duas leituras chegam juntos, como um só</span>
+          </div>
+          <div class="panel" role="tabpanel" id="p-csv" aria-labelledby="tab-csv" hidden>
+            <h3>Replay de CSV</h3>
+            <p>Pregão gravado pelo próprio servidor ou exportado do Times &amp; Trades.</p>
+            <span class="status-pill st-ok">Testado com dados de exemplo</span>
+          </div>
+          <div class="panel" role="tabpanel" id="p-leg" aria-labelledby="tab-leg" hidden>
+            <h3>DDE e OCR</h3>
+            <p>Leitura por planilha ou pela tela.</p>
+            <span class="status-pill st-legacy">Legado · frágeis, mantidos só para testes</span>
+          </div>
+        </div>
+        <p class="note">A ProfitDLL é a fonte certa para fluxo: não perde negócio e já informa quem agrediu. As outras existem porque nem sempre a DLL está disponível.</p>
+      </div>
+    </section>
+
+    <!-- Replay -->
+    <section id="replay">
+      <div class="wrap replay-grid">
+        <div>
+          <p class="eyebrow">Replay e calibração</p>
+          <h2 class="section-title">O mesmo pregão, os mesmos sinais. Sempre.</h2>
+          <ul class="list" style="margin-top:28px">
+            <li><b>Determinístico.</b> O motor usa o horário de cada negócio como relógio. Um pregão gravado produz exatamente os mesmos sinais em qualquer velocidade, ao vivo ou acelerado.</li>
+            <li><b>Gravação.</b> Qualquer modo ao vivo grava os negócios num CSV (<code>--gravar</code>), pronto para reprocessar depois.</li>
+            <li><b>Mini backtest.</b> Para cada sinal, mede se o preço andou o alvo a favor antes de tocar o stop, dentro de um horizonte de tempo. Também registra o máximo a favor e o máximo contra (MFE e MAE).</li>
+            <li><b>Grid de parâmetros.</b> Roda o mesmo pregão para cada combinação de parâmetros e ordena o resultado numa tabela.</li>
+          </ul>
+        </div>
+        <div>
+<pre class="codeblock">$ python main.py --asset PETR4 --modo replay \
+    --arquivo pregao.csv \
+    --grid exhaustion_vol_ratio=0.5,0.6 \
+           exhaustion_reversal_ticks=2,3</pre>
+          <p class="caveat">O grid serve para calibrar por ativo, não para garantir resultado. Parâmetro ajustado demais a um único dia é ruído.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Engenharia -->
+    <section id="engenharia">
+      <div class="wrap">
+        <p class="eyebrow">Engenharia</p>
+        <h2 class="section-title">Pequeno, testável e sem dependências no núcleo.</h2>
+        <div class="grid grid-3" style="margin-top:32px">
+          <div class="card"><span class="tag">núcleo</span><h3>Python puro</h3><p>O motor, a API e o replay usam só a biblioteca padrão. Dependências externas só nos modos de captura opcionais (OCR, DDE).</p></div>
+          <div class="card"><span class="tag">api</span><h3>API HTTP embutida</h3><p><code>GET /signal</code>, <code>GET /state</code> com delta, pernas, icebergs e absorções, <code>POST /tick</code> e <code>POST /rtd</code> para entrada de dados, e um dashboard que atualiza sozinho.</p></div>
+          <div class="card"><span class="tag">profit</span><h3>Integração com o Profit</h3><p>Um robô NTSL lê o sinal pela planilha; a ponte RTD é uma macro VBA que envia cada atualização ao servidor.</p></div>
+          <div class="card"><span class="tag">concorrência</span><h3>Sem bloquear a fonte</h3><p>Os callbacks da DLL só enfileiram; uma thread separada entrega os negócios ao motor na ordem de chegada.</p></div>
+          <div class="card"><span class="tag">testes</span><h3>20 grupos de teste</h3><p>Cada detector, a ponte da DLL com negócios simulados, a inferência do RTD, a API HTTP, a leitura de CSV do Profit, a gravação e o replay. Rodam em qualquer sistema, sem o Profit.</p></div>
+          <div class="card"><span class="tag">honestidade</span><h3>Heurística fraca, marcada</h3><p>Quando a fonte não informa a corretora passiva, o iceberg cai para a regra do lote repetido, e o estado diz isso explicitamente.</p></div>
+        </div>
+        <div class="chips" aria-label="Stack">
+          <span class="chip">Python 3.10+</span><span class="chip">biblioteca padrão</span><span class="chip">ctypes (ProfitDLL)</span><span class="chip">VBA (RTD)</span><span class="chip">NTSL</span><span class="chip">HTML/JS (dashboard)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Status -->
+    <section id="status">
+      <div class="wrap">
+        <p class="eyebrow">Status</p>
+        <h2 class="section-title">Onde o projeto está, sem enfeite.</h2>
+        <div class="grid grid-3" style="margin-top:32px">
+          <div class="card status-col">
+            <h3><span class="ind" style="background:var(--buy)"></span>Pronto e testado com dados de exemplo</h3>
+            <ul><li>Motor com iceberg pela passiva, absorção, exaustão, delta, urgência e best offer</li><li>Replay determinístico, mini backtest e grid</li><li>Ponte RTD com inferência de negócios</li><li>API HTTP e dashboard</li></ul>
+          </div>
+          <div class="card status-col">
+            <h3><span class="ind" style="background:var(--warn)"></span>Implementado, falta testar com o Profit real</h3>
+            <ul><li>ProfitDLL em tempo real e download de histórico</li><li>Campos do RTD que dependem da versão do Profit</li></ul>
+          </div>
+          <div class="card status-col">
+            <h3><span class="ind" style="background:var(--accent)"></span>Próximos passos</h3>
+            <ol><li><b>PETR4 com dados reais:</b> gravar e reprocessar pregões, primeira calibração.</li><li><b>Mini índice (WIN):</b> calibração própria, outro tamanho de tick e outra liquidez.</li></ol>
+          </div>
+        </div>
+        <p class="caveat">Nenhum resultado foi medido com dados reais ainda. Quando houver, ele aparece aqui, com o tamanho da amostra.</p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="wrap">
+        <p class="eyebrow">FAQ</p>
+        <h2 class="section-title">Perguntas diretas, respostas diretas.</h2>
+        <div class="faq" style="margin-top:32px">
+          <details><summary>Dá lucro?</summary><p>Não sei, e ninguém sabe ainda. O motor não foi validado com dados reais. Mesmo depois de validado, um resultado passado em poucos pregões não garante nada.</p></details>
+          <details><summary>É um robô que opera sozinho?</summary><p>Não. O motor gera sinais com motivo e stop. A decisão de operar não faz parte deste projeto.</p></details>
+          <details><summary>Posso usar ou comprar?</summary><p>Não. É um projeto pessoal de estudo, sem venda e com código fechado por enquanto.</p></details>
+          <details><summary>Por que corretora passiva e não só o lote repetido?</summary><p>O lote aparente engana: algoritmos repetem lotes o tempo todo. Ver a mesma corretora sendo agredida no mesmo preço, com volume acima do normal, é um sinal mais limpo de ordem escondida. Sem a passiva, o motor ainda usa a regra do lote repetido, marcada como heurística fraca.</p></details>
+          <details><summary>Funciona com qualquer ativo?</summary><p>O motor sim; os parâmetros não. Tamanho do tick, lote médio e liquidez mudam muito entre uma ação e um contrato futuro. Cada ativo precisa da própria calibração.</p></details>
+          <details><summary>Precisa do Profit?</summary><p>Para dados ao vivo, sim, na mesma máquina. Para estudar, o replay roda com qualquer CSV de negócios.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="contato" class="cta">
+      <div class="wrap">
+        <h2 class="section-title">Quer conversar sobre fluxo ou sobre o projeto?</h2>
+        <p class="lead">Dúvidas técnicas, ideias de detector ou propostas de trabalho em engenharia de dados de mercado.</p>
+        <div class="cta-row"><a class="btn btn-primary" href="https://github.com/leandrosales-lab" rel="noopener">Falar comigo no GitHub</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p class="disclaimer"><b>AVISO</b>Projeto de estudo. Não é recomendação de investimento, oferta de produto ou serviço. Operar na bolsa envolve risco de perda. Os exemplos desta página usam dados fictícios.</p>
+      <div class="foot-line"><span>fluxo_server · projeto de estudo</span><a href="https://github.com/leandrosales-lab" rel="noopener">github.com/leandrosales-lab</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // Abas acessíveis (setas, Home/End) — sem dependências
+    document.querySelectorAll('.tabs').forEach(function (root) {
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+      function select(t) {
+        tabs.forEach(function (x) {
+          var on = x === t;
+          x.setAttribute('aria-selected', on);
+          x.tabIndex = on ? 0 : -1;
+          document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+        });
+        t.focus();
+      }
+      tabs.forEach(function (t, i) {
+        t.addEventListener('click', function () { select(t); });
+        t.addEventListener('keydown', function (e) {
+          var n = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+          if (n === undefined) return;
+          e.preventDefault();
+          select(tabs[(n + tabs.length) % tabs.length]);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
