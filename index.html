@@ -66,6 +66,40 @@
       </div>
     </section>
 
+    <!-- Fita de negócios (animação decorativa) -->
+    <div class="tape" aria-hidden="true">
+      <div class="tape-track" id="tape"></div>
+    </div>
+
+    <!-- Produto: screenshot real do dashboard -->
+    <section class="product" aria-labelledby="produto-titulo">
+      <div class="wrap">
+        <p class="eyebrow">O dashboard</p>
+        <h2 class="section-title" id="produto-titulo">O sinal, o fluxo e o motivo na mesma tela.</h2>
+        <div class="shot">
+          <div class="window">
+            <div class="window-bar">
+              <div class="term-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+              <span class="window-url"><span class="live" aria-hidden="true"></span>127.0.0.1:5000/dashboard</span>
+              <span class="window-ver">replay</span>
+            </div>
+            <img src="img/dashboard.png" width="1280" height="400" loading="lazy" decoding="async"
+                 alt="Dashboard do Fluxo Server mostrando um sinal SELL por exaustão com 83% de confiança, preço 5406,50 e stop 5409, pressão de fluxo de 85,8% compra contra 14,2% venda, delta acumulado de 301 e o padrão de exaustão no topo em 5408.">
+          </div>
+          <div class="float float-a" aria-hidden="true">
+            <span class="float-label">Delta acumulado</span>
+            <b class="buy-t">+301</b>
+          </div>
+          <div class="float float-b" aria-hidden="true">
+            <span class="float-label">Exaustão · topo</span>
+            <b>5408,00</b>
+            <span class="float-sub">vol 10% da média · divergência de delta</span>
+          </div>
+        </div>
+        <p class="shot-caption">Captura real do dashboard, rodando o replay do CSV de exemplo que acompanha o projeto (mini dólar, dados de exemplo, não de um pregão real).</p>
+      </div>
+    </section>
+
     <!-- Números -->
     <section class="stats" aria-label="Resumo do projeto">
       <div class="wrap stats-grid">
@@ -267,6 +301,44 @@
   </footer>
 
   <script>
+    var calmo = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Fita de negócios fictícios (decorativa, aria-hidden). Conteúdo duplicado para o loop não ter emenda.
+    (function () {
+      var el = document.getElementById('tape');
+      if (!el) return;
+      var corretoras = ['XP', 'BTG', 'ITAU', 'UBS', 'JPM', 'BRAD', 'SAFRA', 'GENIAL', 'CLEAR', 'MS'];
+      var preco = 37.42, h = 10, m = 31, s = 2, html = '';
+      for (var i = 0; i < 28; i++) {
+        var compra = Math.sin(i * 1.7) + Math.cos(i * 0.6) > 0;
+        preco = Math.round((preco + (compra ? 0.01 : -0.01) * (i % 3 === 0 ? 1 : 0)) * 100) / 100;
+        s += 1 + (i * 7) % 4; if (s >= 60) { s -= 60; m++; }
+        var qtd = [100, 200, 300, 500, 1000, 1500][(i * 5) % 6];
+        var hora = h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        var ag = corretoras[(i * 3) % corretoras.length], pa = corretoras[(i * 7 + 2) % corretoras.length];
+        html += '<span class="trade ' + (compra ? 'is-buy' : 'is-sell') + '"><i>' + hora + '</i> PETR4 ' +
+          preco.toFixed(2).replace('.', ',') + ' <em>' + qtd + '</em> ' + '<b>' + (compra ? '▲' : '▼') + '</b> ' + ag + ' → ' + pa + '</span>';
+      }
+      el.innerHTML = html + html;
+    })();
+
+    // Terminal do hero escrevendo linha por linha (sem animação: mostra tudo de uma vez)
+    (function () {
+      var pre = document.querySelector('.term-body');
+      if (!pre || calmo) return;
+      var linhas = pre.innerHTML.split('\n');
+      pre.style.minHeight = pre.offsetHeight + 'px';
+      pre.innerHTML = '<span class="cursor" aria-hidden="true"></span>';
+      var i = 0;
+      (function proxima() {
+        if (i >= linhas.length) return;
+        var cur = pre.querySelector('.cursor');
+        cur.insertAdjacentHTML('beforebegin', linhas[i] + (i < linhas.length - 1 ? '\n' : ''));
+        i++;
+        setTimeout(proxima, i === 1 ? 700 : 420);
+      })();
+    })();
+
     // Abas acessíveis (setas, Home/End) — sem dependências
     document.querySelectorAll('.tabs').forEach(function (root) {
       var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
