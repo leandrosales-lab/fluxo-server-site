@@ -1,2 +1,5 @@
 replica/screens/
 design/
+
+.vercel
+.env*
