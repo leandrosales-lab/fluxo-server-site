@@ -339,7 +339,7 @@
       <div class="wrap">
         <h2 class="section-title">Quer conversar sobre fluxo ou sobre o projeto?</h2>
         <p class="lead">Dúvidas técnicas, ideias de detector ou propostas de trabalho em engenharia de dados de mercado.</p>
-        <div class="cta-row"><a class="btn btn-primary" href="https://github.com/leandrosales-lab" rel="noopener">Falar comigo no GitHub</a></div>
+        <div class="cta-row"><a class="btn btn-primary js-email" href="#contato" data-e="moc.liamg@2102selasordnael">Enviar e-mail</a><a class="btn btn-ghost" href="https://github.com/leandrosales-lab" rel="noopener">Ver no GitHub</a></div>
       </div>
     </section>
   </main>
@@ -347,7 +347,7 @@
   <footer>
     <div class="wrap">
       <p class="disclaimer"><b>AVISO</b>Projeto de estudo. Não é recomendação de investimento, oferta de produto ou serviço. Operar na bolsa envolve risco de perda. Os exemplos desta página usam dados fictícios.</p>
-      <div class="foot-line"><span>fluxo_server · projeto de estudo</span><a href="https://github.com/leandrosales-lab" rel="noopener">github.com/leandrosales-lab</a></div>
+      <div class="foot-line"><span>fluxo_server · projeto de estudo</span><span><a class="js-email" href="#contato" data-e="moc.liamg@2102selasordnael">e-mail</a> · <a href="https://github.com/leandrosales-lab" rel="noopener">GitHub</a></span></div>
     </div>
   </footer>
 
@@ -555,6 +555,14 @@
         retomar();
       }
     })();
+
+    // E-mail montado só no clique: o endereço fica invertido no HTML, longe de robôs de spam.
+    document.querySelectorAll('.js-email').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        location.href = 'mailto:' + a.dataset.e.split('').reverse().join('') + '?subject=Fluxo%20Server';
+      });
+    });
 
     // Abas acessíveis (setas, Home/End) — sem dependências
     document.querySelectorAll('.tabs').forEach(function (root) {
